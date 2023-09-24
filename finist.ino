@@ -1,11 +1,15 @@
 #include "finistSensor.h"
+Encoder* left_encoder;
+Encoder* right_encoder;
+
 
 void setup() {
   // put your setup code here, to run once:
-  LineSensor left_sensor(A0);
-  Encoder left_encoder(4,5,2);
-  Serial.begin(9600);
-  Serial.println(left_sensor.s_port);
+  left_encoder = new Encoder (4,5,2);
+  right_encoder = new Encoder (6, 7, 3);
+  left_encoder->setup([]{left_encoder->EncoderEvent();});
+  right_encoder->setup([]{right_encoder->EncoderEvent();});
+
 }
 
 void loop() {
