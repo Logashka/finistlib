@@ -5,17 +5,19 @@
  * get_percent возвращает float, значение в процентах (0 - 100)
 */
 class LineSensor {
-public:
+private:
     int s_port;
-
+public:
     LineSensor(int i_port) {
         s_port = i_port;
         pinMode(s_port, INPUT);
     }
 
+
     int get_raw() {
         return analogRead(s_port);
     }
+
 
     float get_percent() {
         return analogRead(s_port) / 1024 * 100;
@@ -48,9 +50,11 @@ public:
  *}
 */
 class Encoder {
+private:
+    int RH_ENCODER_A, RH_ENCODER_B, RH_ENCODER_I, turn;
 public:
-    int count = 0, turn;
-    int RH_ENCODER_A, RH_ENCODER_B, RH_ENCODER_I;
+    int count = 0;
+
 
     void EncoderEvent() {
         if (digitalRead(RH_ENCODER_A) == HIGH) {
@@ -67,8 +71,10 @@ public:
             }
         }
     }
+
+
     void setup(void (*callback)(void)) {
-      attachInterrupt(RH_ENCODER_I, callback, CHANGE);// задаем системные прерывания для енкодеров
+        attachInterrupt(RH_ENCODER_I, callback, CHANGE);// задаем системные прерывания для енкодеров
     }
 
 
@@ -81,8 +87,9 @@ public:
         pinMode(RH_ENCODER_B, INPUT);// прописываем режим работы пинов енкодеров
     }
 
+
     //возвращает абсолютное значение градусов(float)
-    float get_deg(){
-        return map(count,-1 * turn, turn,-360,360);
+    float get_deg() {
+        return map(count, -1 * turn, turn, -360, 360);
     }
 };
