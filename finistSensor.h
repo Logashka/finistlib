@@ -30,11 +30,26 @@ public:
  * * все порты цифровые
  * значение храниться в count. достать: "object_name".count .
  * в count количество ТИКОВ(!!)
- * TODO: invalid use of non-static member function
+ * get_deg() - вернёт абсолютное значение градусов(float).
+ * чтобы обнулить - обнулите count
+ *
+ *
+ * реализовано через костыль, спасибо Никите
+ *
+ * example:
+
+ * #include "finistSensor.h"
+ * Encoder* left_encoder;
+
+ * void setup() { 
+ *  left_encoder = new Encoder(4,5,2);
+ *  left_encoder->setup([]{left_encoder->EncoderEvent();});
+ *}
 */
 class Encoder {
 public:
-    int count = 0, RH_ENCODER_A, RH_ENCODER_B, RH_ENCODER_I;
+    int count = 0, turn;
+    int RH_ENCODER_A, RH_ENCODER_B, RH_ENCODER_I;
 
     void EncoderEvent() {
         if (digitalRead(RH_ENCODER_A) == HIGH) {
@@ -51,14 +66,23 @@ public:
             }
         }
     }
+    void setup(void (*callback)(void)) {
+      attachInterrupt(RH_ENCODER_I, callback, CHANGE);// задаем системные прерывания для енкодеров
+    }
 
-    Encoder(int e_a, int e_b, int e_i) {
+
+    Encoder(int e_a, int e_b, int e_i, int turnover = 0) {
         RH_ENCODER_A = e_a;
         RH_ENCODER_B = e_b;
         RH_ENCODER_I = e_i;
+        turn = turnover;
         pinMode(RH_ENCODER_A, INPUT);// прописываем режим работы пинов енкодеров
         pinMode(RH_ENCODER_B, INPUT);// прописываем режим работы пинов енкодеров
-        attachInterrupt(RH_ENCODER_I, EncoderEvent, CHANGE);// задаем системные прерывания для енкодеров
+    }
+
+    //возвращает абсолютное значение градусов(float)
+    float get_deg(){
+        return map(count,-1 * turn, turn,-360,360);
     }
 };
 
