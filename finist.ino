@@ -1,28 +1,38 @@
-#include "finistBase.h"
+#include "finistSensor.h"
+#include "finistMotor.h"
 
-//тут дефайны
-
-Encoder* left_encoder;
-Encoder* right_encoder;
-LineSensor right_line(A0);
-LineSensor left_line(A1);
-Motor left_motor(8, 9, 10);
-Motor right_motor(11, 12, 13);
-Base robot(25,25);
-
-void setup() {
-  left_encoder = new Encoder (4,5,2);
-  right_encoder = new Encoder (6, 7, 3);
-  left_encoder->setup([]{left_encoder->EncoderEvent();});
-  right_encoder->setup([]{right_encoder->EncoderEvent();});
+class Base {
+private:
+    LineSensor *left_line;
+    LineSensor *right_line;
+    Encoder *right_encoder;
+    Encoder *left_encoder;
+    Motor *right_motor;
+    Motor *left_motor;
+public:
+    float d, b;
 
 
-  robot.setup_lineSensors(left_line, right_line);
-  robot.setup_encoders(left_encoder, right_encoder);
-  robot.setup_motors(left_motor, right_motor);
-}
+    Base(float wheel_diameter, float distance_between_wheels) {
+        d = wheel_diameter;
+        b = distance_between_wheels;
+    }
 
-void loop() {
-  // put your main code here, to run repeatedly:
 
-}
+    void setup_lineSensors(LineSensor &left, LineSensor &right) {
+        this->right_line = &right;
+        this->left_line = &left;
+    }
+
+
+    void setup_encoders(Encoder *left, Encoder *right) {
+        this->right_encoder = right;
+        this->left_encoder = left;
+    }
+
+
+    void setup_motors(Motor &left, Motor &right){
+        this->right_motor = &right;
+        this->left_motor = &left;
+    }
+};
