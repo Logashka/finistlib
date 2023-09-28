@@ -8,24 +8,34 @@ class LineSensor {
 private:
     int s_port;
 public:
+    //конструктор int i_port - номер порта.
     LineSensor(int i_port) {
         s_port = i_port;
-        pinMode(s_port, INPUT);
     }
 
 
+    //пинмоды
+    void setup(){
+        pinMode(s_port, INPUT);
+    }
+
+    //получение не обработанного значения с датчика
     int get_raw() {
         return analogRead(s_port);
     }
 
 
+    //получение значения с датчика в процентах
     float get_percent() {
-        return analogRead(s_port) / 1024 * 100;
+        float a = analogRead(s_port);
+        a /= 1024;
+        a *= 100;
+        return a;
     }
 };
 
 
-/* Объект энкодер
+/* Объект энкодер для трехпинового энкодера
  * входные параметры:
  * * e_a - первый провод на направление вращения (int),  e_b - второй провод на направдение вращения (int),
  * * e_i - провод на счётчик/интрапт (int), на уно всего ДВА(!): 2 и 3
@@ -55,7 +65,7 @@ private:
 public:
     int count = 0;
 
-
+    //событие на прерывание. НЕ трогать
     void EncoderEvent() {
         if (digitalRead(RH_ENCODER_A) == HIGH) {
             if (digitalRead(RH_ENCODER_B) == LOW) {
@@ -75,6 +85,8 @@ public:
 
     void setup(void (*callback)(void)) {
         attachInterrupt(RH_ENCODER_I, callback, CHANGE);// задаем системные прерывания для енкодеров
+        pinMode(RH_ENCODER_A, INPUT);// прописываем режим работы пинов енкодеров
+        pinMode(RH_ENCODER_B, INPUT);// прописываем режим работы пинов енкодеров
     }
 
 
@@ -83,8 +95,6 @@ public:
         RH_ENCODER_B = e_b;
         RH_ENCODER_I = e_i;
         turn = turnover;
-        pinMode(RH_ENCODER_A, INPUT);// прописываем режим работы пинов енкодеров
-        pinMode(RH_ENCODER_B, INPUT);// прописываем режим работы пинов енкодеров
     }
 
 
