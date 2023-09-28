@@ -15,16 +15,15 @@
  * инструкции к методам в аннотации методов
  */
 class Base {
-private:
+public:
+    float d, b;
+
     LineSensor *left_line;
     LineSensor *right_line;
     Encoder *right_encoder;
     Encoder *left_encoder;
     Motor *right_motor;
     Motor *left_motor;
-public:
-    float d, b;
-
 
     Base(float wheel_diameter, float distance_between_wheels) {
         d = wheel_diameter;
