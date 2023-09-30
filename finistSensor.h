@@ -8,6 +8,9 @@ class LineSensor {
 private:
     int s_port;
 public:
+    int min = 0, max = 1024;
+
+
     //конструктор int i_port - номер порта.
     LineSensor(int i_port) {
         s_port = i_port;
@@ -19,6 +22,30 @@ public:
         pinMode(s_port, INPUT);
     }
 
+
+    //ручная калибровка значений для рассчёта процентов
+    void calibration(int i_min,int i_max){
+        min = i_min;
+        max = i_max;
+    }
+
+
+    //автоматическое выявление максимума и минимума. входной пораметр - длительность в секундах (int)
+    void auto_calibration(int time){
+        min = 1024; max = 0;
+        int start = millis();
+        while (millis() - start < time * 1000){
+            int data = this->get_percent();
+            if (data < min){
+                min = data;
+            }
+            if (data > max){
+                max = data;
+            }
+        }
+    }
+
+
     //получение не обработанного значения с датчика
     int get_raw() {
         return analogRead(s_port);
@@ -27,10 +54,7 @@ public:
 
     //получение значения с датчика в процентах
     float get_percent() {
-        float a = analogRead(s_port);
-        a /= 1024;
-        a *= 100;
-        return a;
+        return map(this->get_raw(), min, max, 0, 100);
     }
 };
 
