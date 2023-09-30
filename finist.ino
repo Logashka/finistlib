@@ -21,22 +21,22 @@ void setup() {
   right_encoder = new Encoder (6, 7, 3);
   left_encoder->setup([]{left_encoder->EncoderEvent();});
   right_encoder->setup([]{right_encoder->EncoderEvent();});
+
   right_motor.setup();
   left_motor.setup(true);
+
   left_line.setup();
   right_line.setup();
-
+  left_line.calibration(0, 1024);
+  right_line.calibration(0, 1024);
 
   robot.setup_lineSensors(left_line, right_line);
   robot.setup_encoders(left_encoder, right_encoder);
   robot.setup_motors(left_motor, right_motor);
 
-
   Serial.begin(9600);
 }
 
 void loop() {
-  robot.right_motor->start_percent(100);
-  robot.left_motor->start_percent(100);
-  delay(100);
+  drive_line(robot, 50, 1, 4);
 }
