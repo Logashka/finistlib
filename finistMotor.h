@@ -37,7 +37,7 @@ public:
 
 
     //запускает мотор со скоростью в диапазоне +-0...+-256
-    void start(int speed){
+    void start(float speed){
         speed *= k;
         if(speed >= 0){
             digitalWrite(dir_port1, HIGH);
@@ -45,13 +45,14 @@ public:
         else{
             digitalWrite(dir_port1, LOW);
         }
-        digitalWrite(speed_port, abs(speed));
+        analogWrite(speed_port, int(fabs(speed)));
     }
 
 
     //запускает моторы в процентах скорости
-    void start_percent(int speed){
-        this->start(speed/100*255);
+    void start_percent(float speed){
+        float v = map(speed, 0, 100, 0, 255);
+        this->start(v);
     }
 
     //остановка. true - жёсткая, false - плавная. на амперка шилде работает через ....
