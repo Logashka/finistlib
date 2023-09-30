@@ -60,4 +60,14 @@ public:
         this->left_motor = &left;
     }
 
+    //запускает два мотора с одинаковой скоростью в процентах
+    void w2_start(int speed){
+        left_motor->start_percent(speed);
+        right_motor->start_percent(speed);
+    }
+
+    void w2_startSync(int speed_left, int speed_right){
+        left_motor->start_percent(speed_left);
+        right_motor->start_percent(speed_right);
+    }
 };
