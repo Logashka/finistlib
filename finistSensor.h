@@ -11,50 +11,52 @@ public:
     int min = 0, max = 1024;
 
 
-    //конструктор int i_port - номер порта.
+//конструктор int i_port - номер порта.
     LineSensor(int i_port) {
         s_port = i_port;
     }
 
 
-    //пинмоды
-    void setup(){
+//пинмоды
+    void setup() {
         pinMode(s_port, INPUT);
     }
 
 
-    //ручная калибровка значений для рассчёта процентов
-    void calibration(int i_min,int i_max){
+//ручная калибровка значений для рассчёта процентов
+    void calibration(int i_min, int i_max) {
         min = i_min;
         max = i_max;
     }
 
 
-    //автоматическое выявление максимума и минимума. входной пораметр - длительность в секундах (int)
-    void auto_calibration(int time){
-        min = 1024; max = 0;
+//автоматическое выявление максимума и минимума. входной пораметр - длительность в секундах (int)
+    void auto_calibration(int time) {
+        min = 1024;
+        max = 0;
         int start = millis();
-        while (millis() - start < time * 1000){
+        while (millis() - start < time * 1000) {
             int data = this->get_percent();
-            if (data < min){
+            if (data < min) {
                 min = data;
             }
-            if (data > max){
+            if (data > max) {
                 max = data;
             }
         }
     }
 
 
-    //получение не обработанного значения с датчика
+//получение не обработанного значения с датчика
     int get_raw() {
         return analogRead(s_port);
     }
 
 
-    //получение значения с датчика в процентах
+//получение значения с датчика в процентах
     float get_percent() {
-        return map(this->get_raw(), min, max, 0, 100);
+        int a = 1024 - this->get_raw();
+        return map(a, min, max, 0, 100);
     }
 };
 
@@ -89,7 +91,7 @@ private:
 public:
     int count = 0;
 
-    //событие на прерывание. НЕ трогать
+//событие на прерывание. НЕ трогать
     void EncoderEvent() {
         if (digitalRead(RH_ENCODER_A) == HIGH) {
             if (digitalRead(RH_ENCODER_B) == LOW) {
@@ -122,8 +124,46 @@ public:
     }
 
 
-    //возвращает абсолютное значение градусов(float)
+//возвращает абсолютное значение градусов(float)
     float get_deg() {
         return map(count, -1 * turn, turn, -360, 360);
     }
+};
+
+
+/* объект ИК датчика расстояния Sharp
+ *
+ * get_raw() - вернёт необработанное значение
+ * get_distance() - вернёт расстояние до объекта в мм
+ *
+ * пересчитывает в расстояние изходя из формулы функции, выведенной по графику зависимости
+ * напряжения от расстояния из документации
+ *
+ */
+class Sharp{
+private:
+    int pin;
+public:
+    Sharp(int s_pin){
+        pin = s_pin;
+    }
+
+
+    //устанавливает режим работы пина
+    void setup(){
+        pinMode(pin, INPUT);
+    }
+
+    //вернёт необработанное значение с датчика
+    int get_raw(){
+        return analogRead(pin);
+    }
+
+    //вернёт расстояние до объекта (40 - 300мм)
+    float get_distance(){
+        float v = (analogRead(pin) / 1024.0) * 5.0; // вычисление напряжения на порте
+        float dist = 65 * pow(v, -1.10); // 65 и -1.10 - экспериментально выевленные коэффициенты зависимости вида y = k*x^l
+        return dist / 10;
+    }
+
 };
