@@ -1,5 +1,5 @@
 #include "finistBase.h"
-
+#include "finistStructs.h"
 
 /*  безконечная езда по линии
  *  входные параметры:
@@ -119,3 +119,69 @@ void turn_line(Base &bot, String napr, int v, bool stop) {
 }
 
 
+/* езда по линии на одном датчике
+ * входные параметры:
+ * bot - объект Base
+ * mode - XY, X -каким датчиком едем, Y - со стороны какого датчика линия:
+ *     22,32 только против часовой, 23,33 -только по часовой
+ * v - скорость, int
+ * time - время float
+ * kp, kd - float коэффициенты
+ */
+void drive_line_1s_time(Base &bot, int mode, int v, float time, float kp, float kd) {
+    int sens = mode / 10, pos = mode % 10, err, err_old = 0, start = millis();
+    pos = pow(-1, pos);
+
+    if (sens == 2) {
+        err = (bot.right_line->get_percent() - bot.grey) * pos;
+    } else {
+        err = (bot.left_line->get_percent() - bot.grey) * pos;
+    }
+    do {
+        int upr = kp * err + kd * (err - err_old);
+        bot.w2_startSync(v - upr, v + upr);
+    } while (millis() - start < time * 1000);
+    bot.w2_stop(true);
+}
+
+
+
+/* получение с датчика масства показаний в формате чб.
+ * true - черный
+ * false - белый
+ * bot - Base
+ * time - время движения, пока читаем
+ */
+Array_bool code_read(Base &bot, float time) {
+    unsigned long long start = millis();
+    Array_bool v;
+    bot.w2_start(30);
+    do {
+        v.v.push_back(bot.right_line <= 50);
+    } while (millis() - start < time * 1000);
+    bot.w2_stop(true);
+    return v;
+}
+
+/*членение массива с цветами чб на линии
+ * code - массив
+ */
+Array_line code_depars(Array_bool code) {
+    Array_line v;
+    bool old = code.v[0];
+    unsigned long long count = 0;
+    for (int i = 0; i < code.v.size(); ++i) {
+        if(old == code.v[i]){
+            count += 1;
+        }
+        else{
+            line a;
+            a.color = old;
+            a.size = count;
+            v.v.push_back(a);
+            count = 1;
+        }
+        old = code.v[i];
+    }
+    return v;
+}
